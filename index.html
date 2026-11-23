@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tarot Keyword Companion</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="theme-color" content="#0b0a09">
+<meta name="color-scheme" content="only light">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Tarot">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English+SC&family=IM+Fell+English:ital@0;1&family=Tiro+Devanagari+Hindi&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&display=swap" rel="stylesheet">
+<style>
+/* VOICE: quiet, antique, a companion you read by lamplight.
+   IDEA: the little printed guidebook that ships inside a vintage tarot box.
+   PICTURE: each page carries an engraved-style card — sunburst, numeral, emblem, name ribbon.
+   COLOUR and TYPE: aged parchment, sepia-black ink, a deep night-blue cover with gold — the deck's own palette; IM Fell + Cormorant.
+   LAYOUT: one card per page on phones, a two-page spread on wide screens; contents page with clickable keywords. */
+:root{color-scheme:only light;
+ --ground:light-dark(#d6c4a0,#15120e);
+ --paper:light-dark(#f2e7cd,#e8dabb);
+ --paper2:light-dark(#e9d9b6,#dccaa5);
+ --ink:#2a2119; --ink2:#5b4a38;
+ --night:#1b2130; --gold:#c9a45c;
+ --yes:#3f5a2e; --no:#7a2f22;
+ --chrome:light-dark(#2a2119,#e8dabb); --chromebg:light-dark(#efe3c6,#211c16)}
+:root[data-theme]{color-scheme:only light}
+*{box-sizing:border-box;min-width:0}
+html,body{height:100%}
+body{margin:0;background:var(--ground);color:var(--ink);font:500 18px/1.45 "Cormorant Garamond",Georgia,serif;overflow:hidden;display:grid;grid-template-rows:minmax(0,1fr) auto;height:100dvh}
+.book{display:flex;justify-content:center;align-items:stretch;padding:12px 12px 6px;min-height:0;perspective:1400px}
+.pg{display:none;flex-direction:column;width:min(100%,520px);max-height:880px;margin:auto 0;height:100%;background:radial-gradient(120% 90% at 50% 40%,var(--paper),var(--paper2));border-radius:6px;box-shadow:0 10px 30px rgba(20,12,4,.28),inset 0 0 0 1px rgba(42,33,25,.15);padding:14px 20px 10px;position:relative;overflow:hidden}
+.pg::before{content:"";position:absolute;inset:8px;border:1px solid rgba(42,33,25,.35);border-radius:3px;pointer-events:none}
+.pg.on{display:flex}
+.spread .pg.on{width:min(47vw,540px)}
+.spread .pg.on.l{border-radius:6px 0 0 6px;box-shadow:0 10px 30px rgba(20,12,4,.28),inset -18px 0 22px -18px rgba(42,33,25,.45)}
+.spread .pg.on.r{border-radius:0 6px 6px 0;box-shadow:0 10px 30px rgba(20,12,4,.28),inset 18px 0 22px -18px rgba(42,33,25,.45)}
+.rh,.pf{display:flex;justify-content:space-between;font:15px "IM Fell English SC",serif;color:var(--ink2);flex:none;padding:0 6px}
+.pf{justify-content:center}
+.fig{flex:1 1 0;min-height:110px;display:flex;justify-content:center;align-items:center;padding:6px 0}
+.fig svg{height:100%;width:auto;max-width:100%;filter:drop-shadow(0 3px 6px rgba(42,33,25,.25))}
+.tx{flex:none;text-align:center;padding:0 8px 6px;min-height:clamp(200px,31vh,240px);display:flex;flex-direction:column;justify-content:flex-start}
+.lbl{margin:0;font:italic 15px "IM Fell English",serif;color:var(--ink2)}
+h2{margin:0;font:400 clamp(28px,7vw,38px)/1.05 "IM Fell English SC",serif;text-wrap:balance}
+.kw{margin:4px 0 6px;font:600 16px "Cormorant Garamond",serif;letter-spacing:.02em;color:var(--ink2)}
+.mn{margin:0 auto;max-width:30ch;font:italic 500 19px/1.3 "Cormorant Garamond",serif}
+.dt{margin:6px auto 0;max-width:38ch;font:500 16px/1.38 "Cormorant Garamond",serif;color:var(--ink2)}
+.ans{margin:6px 0 0;font:16px "IM Fell English",serif}
+.ans b{font:400 22px "IM Fell English SC",serif;margin-right:4px}
+.ans.y b{color:var(--yes)}.ans.n b{color:var(--no)}
+svg .rd{fill:#8a2418}
+svg .cf{fill:#efe2c4}
+svg .rl{stroke:#8a2418;stroke-width:1.1}
+svg .cl{fill:none;stroke:var(--ink);stroke-width:.8}
+svg .ray line{stroke:var(--ink);stroke-width:.55;opacity:.38}
+svg .cn,svg .ct{font-family:"IM Fell English SC",serif;fill:var(--ink);text-anchor:middle}
+svg .cn{font-size:18px}svg .ct{font-size:13.5px;letter-spacing:.06em}
+svg .disc{fill:#efe2c4;stroke:var(--ink);stroke-width:1.3}
+svg .disc2{fill:none;stroke:var(--ink);stroke-width:.6}
+svg .gl{font:44px "Segoe UI Symbol","Noto Sans Symbols",serif;fill:var(--ink);text-anchor:middle}
+svg .el{fill:none;stroke:var(--ink);stroke-width:2;stroke-linejoin:round}
+svg .bk{fill:#efe2c4}
+svg .pip{stroke:var(--ink);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+svg .rk{font:15px "IM Fell English SC",serif;fill:var(--ink);text-anchor:middle}
+/* cover */
+.cover{background:#0b0a09!important;text-align:center;justify-content:center}
+.cover::before{border-color:rgba(201,164,92,.35)}
+.cover .stamp{width:min(50%,210px);margin:0 auto;display:block;filter:drop-shadow(0 6px 14px rgba(0,0,0,.6))}
+.cover .hi{margin:18px 0 0;font:400 22px/1 "Tiro Devanagari Hindi",serif;color:#e8dabb;letter-spacing:.08em}
+.cover h1{margin:10px 0 4px;font:400 clamp(34px,9vw,50px)/1.02 "IM Fell English SC",serif;text-wrap:balance}
+.cover p{margin:4px auto;max-width:30ch;font:italic 18px/1.35 "Cormorant Garamond",serif;color:#e4d3a8}
+.cover .btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.cover a{font:17px "IM Fell English SC",serif;color:var(--night);background:var(--gold);padding:10px 18px;border-radius:3px;text-decoration:none;min-height:44px;display:inline-flex;align-items:center}
+.cover a.alt{background:none;color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+/* contents */
+.contents h2{text-align:center;margin-top:6px}
+.contents .note{margin:2px 8px 8px;text-align:center;font:italic 15px/1.3 "Cormorant Garamond",serif;color:var(--ink2)}
+.contents input{font:16px "Cormorant Garamond",serif;width:calc(100% - 16px);margin:0 8px 8px;padding:10px 12px;min-height:44px;border:1px solid rgba(42,33,25,.4);border-radius:3px;background:rgba(255,250,235,.6);color:var(--ink)}
+.contents input:focus-visible,a:focus-visible,button:focus-visible{outline:2px solid #8a5a2b;outline-offset:2px}
+.list{flex:1 1 0;overflow-y:auto;padding:0 8px 8px;overscroll-behavior:contain}
+.list h3{margin:14px 0 4px;font:400 20px "IM Fell English SC",serif;border-bottom:1px solid rgba(42,33,25,.35);display:flex;justify-content:space-between}
+.list h3 small{font:italic 14px "Cormorant Garamond",serif;color:var(--ink2)}
+.list ul{list-style:none;margin:0;padding:0}
+.ir{display:grid;grid-template-columns:2.6em minmax(0,1fr) auto;gap:2px 8px;padding:6px 0;border-bottom:1px dotted rgba(42,33,25,.25);align-items:baseline}
+.ir .in{font:15px "IM Fell English SC",serif;color:var(--ink2)}
+.ir .nm{font:19px "IM Fell English",serif;color:var(--ink);text-decoration:none}
+.ir .yn{font:14px "IM Fell English SC",serif}.ir .yn.y{color:var(--yes)}.ir .yn.n{color:var(--no)}
+.kws{grid-column:2/4;display:flex;flex-wrap:wrap;gap:4px 6px}
+.kws a{font:600 14.5px "Cormorant Garamond",serif;color:var(--ink2);text-decoration:none;border:1px solid rgba(42,33,25,.3);border-radius:20px;padding:1px 9px}
+.kws a:hover,.ir .nm:hover{color:#8a3b1f}
+.empty{text-align:center;font-style:italic;color:var(--ink2);display:none}
+.spin{align-items:center;text-align:center}
+.spin .note{margin:0 0 4px;font:italic 15px "Cormorant Garamond",serif;color:var(--ink2)}
+.wheel{position:relative;width:min(100%,42vh,400px);aspect-ratio:1;margin:4px auto 12px;flex:none;border-radius:50%}
+#wheel{width:100%;height:100%;display:block;pointer-events:none;transition:transform 4.2s cubic-bezier(.12,.7,.1,1);filter:drop-shadow(0 4px 8px rgba(42,33,25,.3))}
+.ptr{position:absolute;left:50%;top:-6px;transform:translateX(-50%);width:0;height:0;border:11px solid transparent;border-top:20px solid #8a2418;border-bottom:0;z-index:2}
+#wheel .wg{font:9.5px "Segoe UI Symbol","Noto Sans Symbols",serif;fill:#f2e7cd;text-anchor:middle}
+#wheel .wr{font:6.4px "IM Fell English SC",serif;fill:#2a2119;text-anchor:middle}
+#wheel .wp{stroke:#2a2119;fill:none;stroke-width:3.2;stroke-linecap:round;stroke-linejoin:round}
+#spinbtn{position:absolute;z-index:3;left:38%;top:38%;width:24%;height:24%;border-radius:50%;border:0;background:transparent;cursor:pointer;padding:0;display:grid;place-items:center}
+#spinbtn svg{width:78%;height:78%;fill:none;stroke:#2a2119;stroke-width:2;stroke-linecap:round}
+#spinbtn .pu{fill:#2a2119}
+#spinbtn:hover svg,#spinbtn:focus-visible svg{stroke:#8a2418}#spinbtn:hover .pu{fill:#8a2418}
+#spinbtn:disabled{cursor:default}#spinbtn:disabled .pu{animation:pu 1s ease-in-out infinite}
+@keyframes pu{50%{transform:scale(.4);transform-origin:30px 30px}}
+.res{flex:1 1 0;min-height:0;overflow:auto;width:100%;display:grid;grid-template-columns:auto minmax(0,1fr);gap:12px;align-items:center;text-align:start;padding:10px 8px 4px}
+.res:empty{display:block}
+.res .rfig svg{height:min(150px,18vh);width:auto;display:block}
+.res h3{margin:0;font:400 24px/1.1 "IM Fell English SC",serif}
+.res .kw,.res .mn,.res .ans,.res .dt{text-align:start;margin-left:0}
+.res a{font:16px "IM Fell English",serif;color:#8a2418}
+@media(prefers-reduced-motion:reduce){#wheel{transition:none}}
+/* controls */
+nav{display:grid;grid-template-columns:auto auto minmax(0,1fr) auto auto auto;gap:6px;align-items:center;padding:6px 12px max(8px,env(safe-area-inset-bottom));max-width:760px;width:100%;margin:0 auto}
+nav button{font:17px "IM Fell English SC",serif;min-height:44px;min-width:44px;padding:0 12px;border:1px solid rgba(42,33,25,.35);border-radius:3px;background:var(--chromebg);color:var(--chrome);cursor:pointer}
+:root[data-theme=dark] nav button{border-color:rgba(232,218,187,.3)}
+#spinnav svg{width:26px;height:26px;display:block;fill:none;stroke:currentColor;stroke-width:3.2}
+nav button:disabled{opacity:.35;cursor:default}
+#count{text-align:center;font:italic 16px "Cormorant Garamond",serif;color:var(--chrome);white-space:nowrap}
+.turn-n{animation:tn .38s ease-out}.turn-p{animation:tp .38s ease-out}
+@keyframes tn{from{opacity:.2;transform:rotateY(-14deg) translateX(18px)}}
+@keyframes tp{from{opacity:.2;transform:rotateY(14deg) translateX(-18px)}}
+@media(prefers-reduced-motion:reduce){.turn-n,.turn-p{animation:none}}
+@media(max-height:620px){.mn{font-size:17px}.kw{margin:2px 0 4px}h2{font-size:26px}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><mask id="perf" maskUnits="userSpaceOnUse" x="0" y="0" width="200" height="320"><rect width="200" height="320" fill="#fff"/><g fill="#000"><circle cx="0.0" cy="0" r="2.5"/><circle cx="0.0" cy="320" r="2.5"/><circle cx="12.5" cy="0" r="2.5"/><circle cx="12.5" cy="320" r="2.5"/><circle cx="25.0" cy="0" r="2.5"/><circle cx="25.0" cy="320" r="2.5"/><circle cx="37.5" cy="0" r="2.5"/><circle cx="37.5" cy="320" r="2.5"/><circle cx="50.0" cy="0" r="2.5"/><circle cx="50.0" cy="320" r="2.5"/><circle cx="62.5" cy="0" r="2.5"/><circle cx="62.5" cy="320" r="2.5"/><circle cx="75.0" cy="0" r="2.5"/><circle cx="75.0" cy="320" r="2.5"/><circle cx="87.5" cy="0" r="2.5"/><circle cx="87.5" cy="320" r="2.5"/><circle cx="100.0" cy="0" r="2.5"/><circle cx="100.0" cy="320" r="2.5"/><circle cx="112.5" cy="0" r="2.5"/><circle cx="112.5" cy="320" r="2.5"/><circle cx="125.0" cy="0" r="2.5"/><circle cx="125.0" cy="320" r="2.5"/><circle cx="137.5" cy="0" r="2.5"/><circle cx="137.5" cy="320" r="2.5"/><circle cx="150.0" cy="0" r="2.5"/><circle cx="150.0" cy="320" r="2.5"/><circle cx="162.5" cy="0" r="2.5"/><circle cx="162.5" cy="320" r="2.5"/><circle cx="175.0" cy="0" r="2.5"/><circle cx="175.0" cy="320" r="2.5"/><circle cx="187.5" cy="0" r="2.5"/><circle cx="187.5" cy="320" r="2.5"/><circle cx="200.0" cy="0" r="2.5"/><circle cx="200.0" cy="320" r="2.5"/><circle cx="0" cy="0.0" r="2.5"/><circle cx="200" cy="0.0" r="2.5"/><circle cx="0" cy="12.3" r="2.5"/><circle cx="200" cy="12.3" r="2.5"/><circle cx="0" cy="24.6" r="2.5"/><circle cx="200" cy="24.6" r="2.5"/><circle cx="0" cy="36.9" r="2.5"/><circle cx="200" cy="36.9" r="2.5"/><circle cx="0" cy="49.2" r="2.5"/><circle cx="200" cy="49.2" r="2.5"/><circle cx="0" cy="61.5" r="2.5"/><circle cx="200" cy="61.5" r="2.5"/><circle cx="0" cy="73.8" r="2.5"/><circle cx="200" cy="73.8" r="2.5"/><circle cx="0" cy="86.2" r="2.5"/><circle cx="200" cy="86.2" r="2.5"/><circle cx="0" cy="98.5" r="2.5"/><circle cx="200" cy="98.5" r="2.5"/><circle cx="0" cy="110.8" r="2.5"/><circle cx="200" cy="110.8" r="2.5"/><circle cx="0" cy="123.1" r="2.5"/><circle cx="200" cy="123.1" r="2.5"/><circle cx="0" cy="135.4" r="2.5"/><circle cx="200" cy="135.4" r="2.5"/><circle cx="0" cy="147.7" r="2.5"/><circle cx="200" cy="147.7" r="2.5"/><circle cx="0" cy="160.0" r="2.5"/><circle cx="200" cy="160.0" r="2.5"/><circle cx="0" cy="172.3" r="2.5"/><circle cx="200" cy="172.3" r="2.5"/><circle cx="0" cy="184.6" r="2.5"/><circle cx="200" cy="184.6" r="2.5"/><circle cx="0" cy="196.9" r="2.5"/><circle cx="200" cy="196.9" r="2.5"/><circle cx="0" cy="209.2" r="2.5"/><circle cx="200" cy="209.2" r="2.5"/><circle cx="0" cy="221.5" r="2.5"/><circle cx="200" cy="221.5" r="2.5"/><circle cx="0" cy="233.8" r="2.5"/><circle cx="200" cy="233.8" r="2.5"/><circle cx="0" cy="246.2" r="2.5"/><circle cx="200" cy="246.2" r="2.5"/><circle cx="0" cy="258.5" r="2.5"/><circle cx="200" cy="258.5" r="2.5"/><circle cx="0" cy="270.8" r="2.5"/><circle cx="200" cy="270.8" r="2.5"/><circle cx="0" cy="283.1" r="2.5"/><circle cx="200" cy="283.1" r="2.5"/><circle cx="0" cy="295.4" r="2.5"/><circle cx="200" cy="295.4" r="2.5"/><circle cx="0" cy="307.7" r="2.5"/><circle cx="200" cy="307.7" r="2.5"/><circle cx="0" cy="320.0" r="2.5"/><circle cx="200" cy="320.0" r="2.5"/></g></mask><mask id="perfc" maskUnits="userSpaceOnUse" x="-6" y="-6" width="172" height="212"><rect x="-6" y="-6" width="172" height="212" fill="#fff"/><g fill="#000"><circle cx="0.0" cy="0.0" r="4.6"/><circle cx="0.0" cy="200.0" r="4.6"/><circle cx="13.3" cy="0.0" r="4.6"/><circle cx="13.3" cy="200.0" r="4.6"/><circle cx="26.7" cy="0.0" r="4.6"/><circle cx="26.7" cy="200.0" r="4.6"/><circle cx="40.0" cy="0.0" r="4.6"/><circle cx="40.0" cy="200.0" r="4.6"/><circle cx="53.3" cy="0.0" r="4.6"/><circle cx="53.3" cy="200.0" r="4.6"/><circle cx="66.7" cy="0.0" r="4.6"/><circle cx="66.7" cy="200.0" r="4.6"/><circle cx="80.0" cy="0.0" r="4.6"/><circle cx="80.0" cy="200.0" r="4.6"/><circle cx="93.3" cy="0.0" r="4.6"/><circle cx="93.3" cy="200.0" r="4.6"/><circle cx="106.6" cy="0.0" r="4.6"/><circle cx="106.6" cy="200.0" r="4.6"/><circle cx="120.0" cy="0.0" r="4.6"/><circle cx="120.0" cy="200.0" r="4.6"/><circle cx="133.3" cy="0.0" r="4.6"/><circle cx="133.3" cy="200.0" r="4.6"/><circle cx="146.6" cy="0.0" r="4.6"/><circle cx="146.6" cy="200.0" r="4.6"/><circle cx="160.0" cy="0.0" r="4.6"/><circle cx="160.0" cy="200.0" r="4.6"/><circle cx="0.0" cy="0.0" r="4.6"/><circle cx="160.0" cy="0.0" r="4.6"/><circle cx="0.0" cy="13.3" r="4.6"/><circle cx="160.0" cy="13.3" r="4.6"/><circle cx="0.0" cy="26.7" r="4.6"/><circle cx="160.0" cy="26.7" r="4.6"/><circle cx="0.0" cy="40.0" r="4.6"/><circle cx="160.0" cy="40.0" r="4.6"/><circle cx="0.0" cy="53.3" r="4.6"/><circle cx="160.0" cy="53.3" r="4.6"/><circle cx="0.0" cy="66.7" r="4.6"/><circle cx="160.0" cy="66.7" r="4.6"/><circle cx="0.0" cy="80.0" r="4.6"/><circle cx="160.0" cy="80.0" r="4.6"/><circle cx="0.0" cy="93.3" r="4.6"/><circle cx="160.0" cy="93.3" r="4.6"/><circle cx="0.0" cy="106.6" r="4.6"/><circle cx="160.0" cy="106.6" r="4.6"/><circle cx="0.0" cy="120.0" r="4.6"/><circle cx="160.0" cy="120.0" r="4.6"/><circle cx="0.0" cy="133.3" r="4.6"/><circle cx="160.0" cy="133.3" r="4.6"/><circle cx="0.0" cy="146.6" r="4.6"/><circle cx="160.0" cy="146.6" r="4.6"/><circle cx="0.0" cy="160.0" r="4.6"/><circle cx="160.0" cy="160.0" r="4.6"/><circle cx="0.0" cy="173.3" r="4.6"/><circle cx="160.0" cy="173.3" r="4.6"/><circle cx="0.0" cy="186.6" r="4.6"/><circle cx="160.0" cy="186.6" r="4.6"/><circle cx="0.0" cy="199.9" r="4.6"/><circle cx="160.0" cy="199.9" r="4.6"/></g></mask></defs>
+ <symbol id="s-wands" viewBox="0 0 40 40"><path d="M20 3v31M20 10c-4-1-7-4-7-4M20 17c4-1 7-4 7-4M20 24c-4-1-7-4-7-4"/><circle cx="20" cy="36" r="2"/></symbol>
+ <symbol id="s-cups" viewBox="0 0 40 40"><path d="M9 5h22c0 10-4 15-11 15S9 15 9 5zM20 20v10M13 35h14M15 30h10M11 9h18"/></symbol>
+ <symbol id="s-swords" viewBox="0 0 40 40"><path d="M20 2l3 5v20h-6V7zM11 27h18M20 27v7"/><circle cx="20" cy="36.5" r="2"/></symbol>
+ <symbol id="s-pentacles" viewBox="0 0 40 40"><circle cx="20" cy="20" r="16"/><path d="M20 8L27.1 29.7L8.6 16.3L31.4 16.3L12.9 29.7Z"/></symbol>
+</svg>
+
+<main class="book" id="book" aria-live="polite"></main>
+<nav aria-label="Booklet navigation">
+ <button id="first" aria-label="Cover">⌂</button>
+ <button id="prev" aria-label="Previous page">‹</button>
+ <span id="count"></span>
+ <button id="toc">Index</button>
+ <button id="spinnav" aria-label="Spin a card"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M8 30Q30 12 52 30Q30 48 8 30Z"/><circle cx="30" cy="30" r="8"/><circle cx="30" cy="30" r="3.4" fill="currentColor"/></svg></button>
+ <button id="next" aria-label="Next page">›</button>
+</nav>
+
+<script>
+{
+const MAJ=[
+["0","The Fool","air","beginnings · spontaneity · leap of faith","A fresh start — step forward with open trust.","Yes"],
+["I","The Magician","☿","skill · willpower · manifestation","Every tool you need is already in your hands; act.","Yes"],
+["II","The High Priestess","☽","intuition · mystery · inner knowing","The answer is within — wait, listen, don't force it.","No","not yet"],
+["III","The Empress","♀","abundance · nurture · fertility","Growth through care, comfort and creativity.","Yes"],
+["IV","The Emperor","♈","structure · authority · stability","Order and steady leadership bring results.","Yes"],
+["V","The Hierophant","♉","tradition · teaching · institutions","Follow the established path and trusted guidance.","Yes"],
+["VI","The Lovers","♊","union · choice · alignment","A heartfelt choice that aligns with your values.","Yes"],
+["VII","The Chariot","♋","willpower · victory · momentum","Hold your focus and drive forward to win.","Yes"],
+["VIII","Strength","♌","courage · patience · gentle power","Quiet courage tames what is wild.","Yes"],
+["IX","The Hermit","♍","solitude · reflection · inner search","Step back and seek your own light.","No"],
+["X","Wheel of Fortune","♃","cycles · fate · turning point","Luck is turning; change is already in motion.","Yes"],
+["XI","Justice","♎","fairness · truth · cause and effect","What is fair and true will be weighed.","Yes","if you've acted fairly"],
+["XII","The Hanged Man","water","pause · surrender · new perspective","Suspend action and see it from another angle.","No","wait"],
+["XIII","Death","♏","endings · transformation · release","One chapter closes so another can begin.","No"],
+["XIV","Temperance","♐","balance · moderation · patience","Blend, balance and let things settle in time.","Yes"],
+["XV","The Devil","♑","attachment · temptation · bondage","Notice what binds you — the chains are looser than they look.","No"],
+["XVI","The Tower","♂","upheaval · revelation · sudden change","A sudden collapse clears false foundations.","No"],
+["XVII","The Star","♒","hope · renewal · inspiration","Healing and calm hope after the storm.","Yes"],
+["XVIII","The Moon","♓","illusion · fear · the subconscious","Not all is as it seems; trust your instinct.","No"],
+["XIX","The Sun","☉","joy · success · vitality","Warmth, clarity and success shine on you.","Yes"],
+["XX","Judgement","fire","awakening · reckoning · calling","A call to rise, reassess and answer your purpose.","Yes"],
+["XXI","The World","♄","completion · wholeness · achievement","A cycle fulfilled — celebrate and integrate.","Yes"]];
+const SUITS=[
+["wands","Wands","Fire · action, drive, ambition",[
+["inspiration · spark · potential","A creative spark wants to be acted on.","Yes"],
+["planning · vision · decisions","Plan your next move with the wider world in view.","Yes"],
+["expansion · foresight · progress","Your efforts are spreading outward; ships are coming in.","Yes"],
+["celebration · home · harmony","A joyful milestone and a stable foundation.","Yes"],
+["conflict · competition · friction","Clashing egos — compete, or find common ground.","No"],
+["victory · recognition · success","Public success and well-earned acknowledgement.","Yes"],
+["defence · perseverance · standing ground","Hold your position; you have the high ground.","Yes"],
+["speed · movement · swift news","Things move fast now — news and momentum arrive.","Yes"],
+["resilience · persistence · last stand","Weary but close; one more push.","Yes","with persistence"],
+["burden · overcommitment · responsibility","You are carrying too much — set some down.","No"],
+["enthusiasm · exploration · messages","Curious energy and exciting news to follow.","Yes"],
+["energy · adventure · impulsiveness","Charge ahead with passion — mind the haste.","Yes"],
+["confidence · warmth · determination","Lead with magnetic, self-assured warmth.","Yes"],
+["vision · leadership · boldness","Bold leadership that turns vision into reality.","Yes"]]],
+["cups","Cups","Water · feeling, love, intuition",[
+["new love · emotional opening · compassion","The heart opens; feelings overflow.","Yes"],
+["partnership · attraction · connection","A balanced, mutual bond between two.","Yes"],
+["friendship · celebration · community","Joy shared with good company.","Yes"],
+["apathy · contemplation · missed offers","Withdrawn and unmoved — an offer goes unseen.","No"],
+["loss · regret · grief","Mourning what spilled; two cups still stand.","No"],
+["nostalgia · childhood · innocence","Sweet memories and simple kindness return.","Yes"],
+["choices · illusion · wishful thinking","Many tempting options; few are real.","No"],
+["walking away · seeking meaning · release","Leave what no longer fulfils you.","No"],
+["wishes fulfilled · contentment · satisfaction","The wish card — contentment is yours.","Yes"],
+["harmony · family · lasting happiness","Emotional fulfilment in home and family.","Yes"],
+["creative beginnings · intuitive messages","A gentle, surprising message from the heart.","Yes"],
+["romance · charm · following the heart","An offer of love or beauty approaches.","Yes"],
+["compassion · emotional security · intuition","Caring, intuitive and emotionally steady.","Yes"],
+["emotional balance · diplomacy · calm","Calm mastery over strong feelings.","Yes"]]],
+["swords","Swords","Air · thought, truth, conflict",[
+["clarity · breakthrough · truth","A clear truth cuts through the fog.","Yes"],
+["indecision · stalemate · avoidance","Blindfolded at a crossroads — a choice is avoided.","No"],
+["heartbreak · sorrow · painful truth","A painful truth pierces the heart.","No"],
+["rest · recovery · contemplation","Pause and recover before the next move.","No","rest first"],
+["conflict · hollow victory · tension","Winning at any cost leaves you alone.","No"],
+["transition · moving on · calmer waters","Leaving trouble behind for calmer shores.","Yes"],
+["deception · strategy · stealth","Something is being taken or hidden.","No"],
+["restriction · self-imposed limits · feeling trapped","The bindings are loose — you can step out.","No"],
+["anxiety · worry · sleepless nights","Fears loom larger in the dark than in truth.","No"],
+["rock bottom · painful ending · finality","It cannot get worse — dawn comes next.","No"],
+["curiosity · vigilance · new ideas","Watchful, eager to learn the truth.","Yes"],
+["haste · ambition · direct action","Rush in with sharp focus — mind the collateral.","Yes"],
+["clear boundaries · honesty · independence","Clear-eyed, fair and honest to the point.","Yes"],
+["intellect · authority · truth","Decide with logic, ethics and authority.","Yes"]]],
+["pentacles","Pentacles","Earth · work, money, the body",[
+["new opportunity · prosperity · manifestation","A tangible opportunity is offered.","Yes"],
+["juggling · balance · adaptability","Keep many things in motion with flexibility.","Yes"],
+["teamwork · craft · collaboration","Skilled work is recognised through collaboration.","Yes"],
+["saving · control · holding on","Security through holding tight — perhaps too tight.","No"],
+["hardship · scarcity · feeling left out","Out in the cold; help is closer than you think.","No"],
+["generosity · giving · receiving","Resources flow fairly between giver and receiver.","Yes"],
+["patience · long-term investment · assessment","The harvest is coming; it isn't ready yet.","No","not yet"],
+["diligence · mastery · skill-building","Steady practice builds real mastery.","Yes"],
+["independence · self-sufficiency · luxury","Enjoy the comfort you have earned yourself.","Yes"],
+["legacy · family wealth · long-term security","Lasting abundance across generations.","Yes"],
+["study · ambition · practical start","A grounded new venture or course of study.","Yes"],
+["routine · reliability · steady effort","Slow and steady wins.","Yes"],
+["nurturing · practicality · comfort","Practical care that makes a home flourish.","Yes"],
+["abundance · security · discipline","Wealth and stability through discipline.","Yes"]]]];
+const RANK=["Ace","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten","Page","Knight","Queen","King"];
+const ROM=["I","II","III","IV","V","VI","VII","VIII","IX","X","P","Kn","Q","K"];
+const slug=s=>s.toLowerCase().replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+const cards=[];
+MAJ.forEach(m=>cards.push({major:1,top:m[0],name:m[1],glyph:m[2],kw:m[3].split(" · "),mean:m[4],yn:m[5],note:m[6]||"",group:"Major Arcana",label:"Major Arcana · "+m[0]}));
+SUITS.forEach(([key,sn,el,list])=>list.forEach((c,i)=>cards.push({suit:key,rank:i,top:ROM[i],name:RANK[i]+" of "+sn,kw:c[0].split(" · "),mean:c[1],yn:c[2],note:c[3]||"",group:sn,label:"Minor Arcana · "+el.split(" · ")[0]})));
+cards.forEach(c=>c.id=slug(c.name));
+const DET=[
+"Unburdened by plans or fear, the Fool walks toward the unknown. Trust the journey — but glance at the cliff edge.",
+"Will and skill meet opportunity. Focus your intention and use what is in front of you to make ideas real.",
+"Secrets, dreams and quiet knowing. The full picture isn't revealed yet; your intuition knows more than your logic.",
+"Fertile and generous, she speaks of growth in family, projects or self. Nurture what you love and let it bloom.",
+"The builder of systems. Discipline, boundaries and clear rules create security — lead, or work with those who do.",
+"Shared beliefs, rituals and mentors. Learn within a tradition or seek counsel; the conventional choice is favoured.",
+"More than romance: a meaningful choice about relationships or values. Choose what is honest and whole-hearted.",
+"Opposing forces are reined in by determination. Success comes through control, confidence and a clear direction.",
+"Strength of heart, not force. Compassion, patience and self-control win over fear, anger or impulse.",
+"A time to withdraw, study and seek truth alone. Guidance comes from within or from a wise teacher, not the crowd.",
+"Life turns in cycles beyond your control. A fortunate shift or turning point is near — adapt and ride the change.",
+"Decisions, contracts and consequences. Be honest and accountable; outcomes will reflect what was truly done.",
+"A voluntary pause or sacrifice. Letting go of control and seeing differently brings insight that action cannot.",
+"Rarely literal — an ending that makes room for renewal. Release the old cleanly so transformation can happen.",
+"Patience, moderation and the middle way. Combine opposites wisely; healing and harmony come with time.",
+"Addiction, materialism or unhealthy ties. Recognising the hold is the first step — you are freer than you think.",
+"Shocks, broken illusions and abrupt change. What falls was not built to last; the truth clears the ground.",
+"After hardship come calm, faith and renewal. Stay open, generous and hopeful — healing is under way.",
+"Confusion, dreams and hidden fears. Avoid big decisions while things are unclear; watch your instincts and patterns.",
+"Optimism, vitality and success. The truth is clear, energy is high and good things come out into the open.",
+"A moment of reckoning and rebirth. Reflect honestly on the past, forgive, and answer a deeper calling.",
+"Completion, achievement and fulfilment. One journey ends well, opening the door to a larger cycle.",
+// Wands
+"A burst of passion, a new idea or venture. Seize it while the energy is fresh.",
+"You hold the world in your hands and weigh your options. Bold planning now shapes what comes.",
+"Plans are in motion and early results appear. Look further ahead — growth, travel or expansion is likely.",
+"A stable, happy foundation worth celebrating: homecomings, weddings, milestones.",
+"Rivalry, disagreement or scattered energy. Healthy competition sharpens you; petty conflict wastes effort.",
+"Victory and public praise. Your confidence is earned — enjoy recognition without arrogance.",
+"Challenged from all sides, you must defend your position. Stay firm in what you believe.",
+"Rapid developments, travel or messages. Act quickly while momentum carries you.",
+"Battle-worn and guarded, you are near the finish. Draw on resilience; don't give up now.",
+"Taking on too much makes the road heavy. Delegate, prioritise or put down what isn't yours.",
+"A free spirit full of new ideas and enthusiasm. Explore freely — then follow through.",
+"Passionate, daring and restless. Good for action and adventure, less so for patience.",
+"Courageous, sociable and independent. Own your confidence and let it inspire others.",
+"A natural leader with vision and an entrepreneurial spirit. Take charge and set the direction.",
+// Cups
+"A new relationship, love or creative gift arrives. Open your heart to receive it.",
+"Mutual respect and attraction — a partnership, friendship or reconciliation.",
+"Celebration, friendship and shared joy. Lean on your community and enjoy good company.",
+"Boredom or discontent makes you miss what is being offered. Look up and reassess.",
+"Fixed on loss and regret, you overlook what remains. Grieve, then turn around.",
+"Comfort from the past: old friends, childhood memories, simple kindness.",
+"Daydreams and too many choices. Separate fantasy from reality before you commit.",
+"Turning away from what no longer fulfils you, in search of something deeper.",
+"Satisfaction, comfort and getting what you wished for. Let yourself enjoy it.",
+"Lasting happiness, harmony at home and emotional fulfilment.",
+"A sensitive messenger bringing creative ideas, intuition or a sweet surprise.",
+"A romantic idealist offering love or inspiration. Follow your heart, but stay grounded.",
+"Empathetic and intuitive, she cares deeply. Trust your feelings and keep healthy boundaries.",
+"Emotionally mature and wise, calm under pressure. Lead with compassion and steadiness.",
+// Swords
+"Mental clarity, a breakthrough idea or an honest truth. Speak and decide clearly.",
+"Avoiding a hard decision keeps you stuck. Take off the blindfold and weigh the facts.",
+"Grief, separation or hurtful words. Acknowledge the pain so healing can begin.",
+"Rest, retreat and recovery after stress. Restore your mind before you act.",
+"A conflict where winning costs relationships. Ask whether this fight is worth it.",
+"Moving away from difficulty toward something calmer. The transition brings relief.",
+"Deception, secrecy or going it alone. Watch for dishonesty — yours or another's.",
+"Feeling trapped by circumstance or fear. The restrictions are mostly in the mind.",
+"Worry, nightmares and anxiety. Fears grow in the dark — talk them through.",
+"A painful ending or betrayal. It is truly over, and the only way now is up.",
+"Curious, alert and full of questions. Gather information before you act.",
+"Fast, ambitious and assertive. Drive toward your goal without cutting others down.",
+"Independent, perceptive and honest. Use clear thinking and fair boundaries.",
+"Intellectual power and authority. Decide with fairness, logic and integrity.",
+// Pentacles
+"A new financial, career or health opportunity. Plant the seed and tend it.",
+"Balancing priorities, money or time. Stay flexible and keep things moving.",
+"Collaboration and skilled work. Your craft is recognised when people build together.",
+"Holding tight to money or control. Security matters, but don't become rigid.",
+"Material or emotional hardship and isolation. Help is there if you ask for it.",
+"Giving and receiving help, charity and fair exchange. Share what you can.",
+"Assessing long-term effort. Results are coming; patience and review are needed.",
+"Apprenticeship, focus and repetition. Dedication turns into mastery.",
+"Self-reliance and earned luxury. Enjoy the rewards of your own work.",
+"Wealth, family, inheritance and lasting stability. Build for the long term.",
+"A diligent student or a new practical plan. Learn steadily and stay grounded.",
+"Hard-working, methodical and dependable. Progress comes through routine.",
+"Nurturing and practical, she creates comfort and security for herself and others.",
+"Successful, secure and generous. Stability built on discipline and good judgment."];
+cards.forEach((c,i)=>c.det=DET[i]);
+
+
+const rays=(cx,cy,r1,r2,st)=>{let s="";for(let a=0;a<360;a+=st){const t=a*Math.PI/180,c=Math.cos(t),n=Math.sin(t);s+=`<line x1="${(cx+c*r1).toFixed(1)}" y1="${(cy+n*r1).toFixed(1)}" x2="${(cx+c*r2).toFixed(1)}" y2="${(cy+n*r2).toFixed(1)}"/>`}return s};
+const PIPS=[[[100,150]],[[100,110],[100,190]],[[100,92],[100,150],[100,208]],[[70,110],[130,110],[70,190],[130,190]],[[70,105],[130,105],[100,150],[70,195],[130,195]],[[70,92],[130,92],[70,150],[130,150],[70,208],[130,208]],[[70,92],[130,92],[100,121],[70,150],[130,150],[70,208],[130,208]],[[70,92],[130,92],[100,121],[70,150],[130,150],[100,179],[70,208],[130,208]],[[70,86],[130,86],[70,128],[130,128],[100,150],[70,172],[130,172],[70,214],[130,214]],[[70,86],[130,86],[100,107],[70,128],[130,128],[70,172],[130,172],[100,193],[70,214],[130,214]]];
+const pip=(s,x,y,z)=>`<circle class="bk" cx="${x}" cy="${y}" r="${z*.55}"/><use class="pip" href="#s-${s}" x="${x-z/2}" y="${y-z/2}" width="${z}" height="${z}"/>`;
+function figure(c){
+ let inner;
+ if(c.major){
+  const g=c.glyph,el={fire:"M100 128L122 166H78Z",water:"M78 134H122L100 172Z",air:"M100 128L122 166H78ZM84 152H116"};
+  inner=`<circle class="disc" cx="100" cy="150" r="40"/><circle class="disc2" cx="100" cy="150" r="34"/>`+(el[g]?`<path class="el" d="${el[g]}"/>`:`<text class="gl" x="100" y="165">${g}︎</text>`);
+ }else if(c.rank<10){
+  const z=c.rank===0?64:(c.rank>7?28:32);inner=PIPS[c.rank].map(([x,y])=>pip(c.suit,x,y,z)).join("");
+ }else{
+  inner=pip(c.suit,100,132,68)+`<circle class="disc" cx="100" cy="205" r="15"/><text class="rk" x="100" y="210">${ROM[c.rank]}</text>`;
+ }
+ const nm=c.name.toUpperCase(),fit=nm.length>16?` textLength="158" lengthAdjust="spacingAndGlyphs"`:"";
+ return `<svg viewBox="0 0 200 320" role="img" aria-label="${c.name} card"><rect x="0" y="0" width="200" height="320" class="rd" mask="url(#perf)"/><rect x="6" y="6" width="188" height="308" class="cf"/><rect x="10" y="10" width="180" height="300" class="cl rl"/><text class="cn" x="100" y="40">${c.top}</text><line x1="40" y1="50" x2="160" y2="50" class="cl"/><g class="ray">${rays(100,150,c.major?44:26,78,c.major?6:9)}</g>${inner}<line x1="24" y1="266" x2="176" y2="266" class="cl"/><text class="ct" x="100" y="291"${fit}>${nm}</text></svg>`;
+}
+const ynTxt=c=>`<b>${c.yn}</b>${c.note?"— "+c.note:""}`;
+const coverRays=rays(100,100,30,96,5);
+const pages=[
+ {id:"cover",html:`<section class="pg cover"><svg class="stamp" viewBox="-6 -6 172 212" aria-hidden="true"><rect x="0" y="0" width="160" height="200" fill="#8a2418" mask="url(#perfc)"/><rect x="10" y="10" width="140" height="180" fill="#efe2c4"/><g fill="none" stroke="#2a2119"><rect x="14" y="14" width="132" height="172" stroke-width="1.4" stroke="#8a2418"/><rect x="19" y="19" width="122" height="162" stroke-width=".6"/><g stroke-width=".6" opacity=".55"><line x1="110.0" y1="96.0" x2="134.0" y2="96.0"/><line x1="109.5" y1="101.2" x2="125.3" y2="104.0"/><line x1="108.2" y1="106.3" x2="130.7" y2="114.5"/><line x1="106.0" y1="111.0" x2="119.8" y2="119.0"/><line x1="103.0" y1="115.3" x2="121.4" y2="130.7"/><line x1="99.3" y1="119.0" x2="109.6" y2="131.2"/><line x1="95.0" y1="122.0" x2="107.0" y2="142.8"/><line x1="90.3" y1="124.2" x2="95.7" y2="139.2"/><line x1="85.2" y1="125.5" x2="89.4" y2="149.2"/><line x1="80.0" y1="126.0" x2="80.0" y2="142.0"/><line x1="74.8" y1="125.5" x2="70.6" y2="149.2"/><line x1="69.7" y1="124.2" x2="64.3" y2="139.2"/><line x1="65.0" y1="122.0" x2="53.0" y2="142.8"/><line x1="60.7" y1="119.0" x2="50.4" y2="131.2"/><line x1="57.0" y1="115.3" x2="38.6" y2="130.7"/><line x1="54.0" y1="111.0" x2="40.2" y2="119.0"/><line x1="51.8" y1="106.3" x2="29.3" y2="114.5"/><line x1="50.5" y1="101.2" x2="34.7" y2="104.0"/><line x1="50.0" y1="96.0" x2="26.0" y2="96.0"/><line x1="50.5" y1="90.8" x2="34.7" y2="88.0"/><line x1="51.8" y1="85.7" x2="29.3" y2="77.5"/><line x1="54.0" y1="81.0" x2="40.2" y2="73.0"/><line x1="57.0" y1="76.7" x2="38.6" y2="61.3"/><line x1="60.7" y1="73.0" x2="50.4" y2="60.8"/><line x1="65.0" y1="70.0" x2="53.0" y2="49.2"/><line x1="69.7" y1="67.8" x2="64.3" y2="52.8"/><line x1="74.8" y1="66.5" x2="70.6" y2="42.8"/><line x1="80.0" y1="66.0" x2="80.0" y2="50.0"/><line x1="85.2" y1="66.5" x2="89.4" y2="42.8"/><line x1="90.3" y1="67.8" x2="95.7" y2="52.8"/><line x1="95.0" y1="70.0" x2="107.0" y2="49.2"/><line x1="99.3" y1="73.0" x2="109.6" y2="60.8"/><line x1="103.0" y1="76.7" x2="121.4" y2="61.3"/><line x1="106.0" y1="81.0" x2="119.8" y2="73.0"/><line x1="108.2" y1="85.7" x2="130.7" y2="77.5"/><line x1="109.5" y1="90.8" x2="125.3" y2="88.0"/></g><path d="M44 96Q80 66 116 96Q80 126 44 96Z" fill="#efe2c4" stroke-width="1.5"/><circle cx="80" cy="96" r="12" stroke-width="1.2"/><circle cx="80" cy="96" r="4.5" fill="#2a2119"/><path d="M74 142A16 16 0 1 0 92 162A12 12 0 1 1 74 142Z" fill="#2a2119" stroke="none"/></g><g fill="#2a2119"><path d="M30 25Q30 30 35 30Q30 30 30 35Q30 30 25 30Q30 30 30 25Z"/><path d="M130 25Q130 30 135 30Q130 30 130 35Q130 30 125 30Q130 30 130 25Z"/><path d="M30 165Q30 170 35 170Q30 170 30 175Q30 170 25 170Q30 170 30 165Z"/><path d="M130 165Q130 170 135 170Q130 170 130 175Q130 170 125 170Q130 170 130 165Z"/><path d="M80 36Q80 40 84 40Q80 40 80 44Q80 40 76 40Q80 40 80 36Z"/></g></svg><p class="hi" lang="hi">टैरो</p></section>`},
+ {id:"contents",html:`<section class="pg contents"><h2>Index</h2><p class="note">Tap a name or keyword to turn to that card. No deck to hand? <a href="#spin">Spin the wheel</a>. Yes/No follows common reading convention; cards often read as “maybe” show their leaning.</p><input id="q" type="search" placeholder="Find a card or keyword…" aria-label="Find a card or keyword" autocomplete="off"><div class="list" id="list"></div></section>`}
+];
+const N=cards.length,SEG=360/N,RED="#8a2418";
+const FILL={"Major Arcana":[RED,"#6f1c13"],Wands:["#e6cf9f","#dcc28d"],Cups:["#f2e7cd","#e8dabb"],Swords:["#d8ccb2","#cdbfa3"],Pentacles:["#ead8ae","#dfcb9b"]};
+const short=c=>c.major?c.name.replace(/^The /,""):(c.rank===0?"Ace":c.rank<10?c.rank+1:RANK[c.rank])+" "+c.group;
+const EL={fire:"M150 17L154.5 25H145.5Z",water:"M145.5 18H154.5L150 26Z",air:"M150 17L154.5 25H145.5ZM146.5 22.2H153.5"};
+const wsym=c=>c.major?(EL[c.glyph]?`<path d="${EL[c.glyph]}" fill="none" stroke="#f2e7cd" stroke-width=".9"/>`:`<text class="wg" x="150" y="25.5">${c.glyph}\uFE0E</text>`)
+ :`<use class="wp" href="#s-${c.suit}" x="145.25" y="16.5" width="9.5" height="9.5"/><text class="wr" x="150" y="36">${ROM[c.rank]==="I"?"A":c.rank<10?c.rank+1:ROM[c.rank]}</text>`;
+function wheelSVG(){
+ const P=(r,a)=>[(150+r*Math.cos(a)).toFixed(2),(150+r*Math.sin(a)).toFixed(2)];
+ return cards.map((c,i)=>{const a0=(i*SEG-90)*Math.PI/180,a1=((i+1)*SEG-90)*Math.PI/180,[x0,y0]=P(140,a0),[x1,y1]=P(140,a1);
+  return `<path d="M150 150L${x0} ${y0}A140 140 0 0 1 ${x1} ${y1}Z" fill="${FILL[c.group][i%2]}" stroke="#2a2119" stroke-width=".25"/><g transform="rotate(${((i+.5)*SEG).toFixed(2)} 150 150)">${wsym(c)}</g>`}).join("")
+ +`<circle cx="150" cy="150" r="141" fill="none" stroke="${RED}" stroke-width="3"/><circle cx="150" cy="150" r="36" fill="#efe2c4" stroke="${RED}" stroke-width="2"/>`;
+}
+pages.push({id:"spin",html:`<section class="pg spin"><h2>Spin a Card</h2><p class="note">No deck to hand? Tap the eye to draw one card.</p><div class="wheel"><div class="ptr"></div><button id="spinbtn" class="hub" aria-label="Spin the wheel"><svg viewBox="0 0 60 60" aria-hidden="true"><path d="M8 30Q30 12 52 30Q30 48 8 30Z"/><circle cx="30" cy="30" r="8"/><circle class="pu" cx="30" cy="30" r="3.4"/><path d="M30 6v5M30 49v5M14 12l3 4M46 12l-3 4M14 48l3-4M46 48l-3-4" class="lash"/></svg></button><svg id="wheel" viewBox="0 0 300 300" role="img" aria-label="Wheel of all 78 cards">${wheelSVG()}</svg></div><div id="res" class="res" aria-live="polite"></div></section>`});
+cards.forEach((c,i)=>pages.push({id:c.id,html:`<section class="pg"><header class="rh"><span>${c.group}</span><span>${c.top}</span></header><div class="fig">${figure(c)}</div><div class="tx"><p class="lbl">${c.label}</p><h2>${c.name}</h2><p class="kw">${c.kw.join(" · ")}</p><p class="mn">${c.mean}</p><p class="dt">${c.det}</p><p class="ans ${c.yn==="Yes"?"y":"n"}">${ynTxt(c)}</p></div><footer class="pf">${i+4}</footer></section>`}));
+
+const book=document.getElementById("book");
+book.innerHTML=pages.map(p=>p.html).join("");
+const els=[...book.children];
+const groups=[["Major Arcana","The journey of the soul"],...SUITS.map(s=>[s[1],s[2]])];
+document.getElementById("list").innerHTML=groups.map(([g,sub])=>`<div class="grp"><h3>${g}<small>${sub}</small></h3><ul>${cards.filter(c=>c.group===g).map(c=>`<li class="ir" data-s="${(c.name+" "+c.kw.join(" ")).toLowerCase()}"><span class="in">${c.top}</span><a class="nm" href="#${c.id}">${c.name}</a><span class="yn ${c.yn==="Yes"?"y":"n"}">${c.yn}</span><span class="kws">${c.kw.map(k=>`<a href="#${c.id}">${k}</a>`).join("")}</span></li>`).join("")}</ul></div>`).join("")+`<p class="empty" id="empty">No card matches that word.</p>`;
+const q=document.getElementById("q");
+q.addEventListener("input",()=>{const v=q.value.trim().toLowerCase();let any=0;document.querySelectorAll(".grp").forEach(g=>{let n=0;g.querySelectorAll(".ir").forEach(r=>{const ok=!v||r.dataset.s.includes(v);r.hidden=!ok;n+=ok});g.hidden=!n;any+=n});document.getElementById("empty").style.display=any?"none":"block"});
+
+const mq=matchMedia("(min-width: 900px) and (min-aspect-ratio: 5/4)");
+let cur=-1;
+const count=document.getElementById("count"),prev=document.getElementById("prev"),next=document.getElementById("next");
+function render(dir){
+ const sp=mq.matches;book.classList.toggle("spread",sp);
+ const L=sp?cur-cur%2:cur,vis=sp?[L,L+1]:[cur];
+ els.forEach((e,i)=>{const on=vis.includes(i)&&i<els.length;e.classList.toggle("on",on);e.classList.toggle("l",sp&&i===L);e.classList.toggle("r",sp&&i===L+1);e.classList.remove("turn-n","turn-p");if(on&&dir){void e.offsetWidth;e.classList.add(dir>0?"turn-n":"turn-p")}});
+ count.textContent=sp?`pp. ${L+1}–${Math.min(L+2,els.length)} of ${els.length}`:`${cur+1} / ${els.length}`;
+ prev.disabled=(sp?L:cur)<=0;next.disabled=(sp?L+2:cur+1)>=els.length;
+}
+function go(i,dir){
+ i=Math.max(0,Math.min(els.length-1,i));
+ if(i===cur)return;
+ const d=dir??(i>cur?1:-1);cur=i;render(d);
+ const id=pages[cur].id;if(location.hash.slice(1)!==id)location.hash=id;
+}
+const step=d=>{const sp=mq.matches,L=sp?cur-cur%2:cur;go(L+d*(sp?2:1),d)};
+const fromHash=()=>{const id=location.hash.slice(1),i=pages.findIndex(p=>p.id===id);go(i<0?0:i)};
+prev.onclick=()=>step(-1);next.onclick=()=>step(1);
+document.getElementById("first").onclick=()=>go(0,-1);
+document.getElementById("toc").onclick=()=>go(1);
+document.getElementById("spinnav").onclick=()=>go(2);
+const wheel=document.getElementById("wheel"),sb=document.getElementById("spinbtn"),res=document.getElementById("res");
+let rot=0;
+sb.onclick=()=>{
+ const r=new Uint32Array(2);crypto.getRandomValues(r);
+ const i=r[0]%N,jit=((r[1]%1000)/1000-.5)*SEG*.7,center=(i+.5)*SEG;
+ const base=rot-((rot%360)+360)%360;rot=base+360*6+((360-center+jit)%360+360)%360;
+ sb.disabled=true;res.innerHTML="";void wheel.getBoundingClientRect();wheel.style.transform=`rotate(${rot}deg)`;
+ const done=()=>{const c=cards[i];sb.disabled=false;res.innerHTML=`<div class="rfig">${figure(c)}</div><div><h3>${c.name}</h3><p class="kw">${c.kw.join(" · ")}</p><p class="mn">${c.mean}</p><p class="dt">${c.det}</p><p class="ans ${c.yn==="Yes"?"y":"n"}">${ynTxt(c)}</p><a href="#${c.id}">Open card page →</a></div>`};
+ let fired=false;const fin=()=>{if(fired)return;fired=true;wheel.removeEventListener("transitionend",fin);clearTimeout(t);done();res.scrollTop=0};
+ const instant=matchMedia("(prefers-reduced-motion: reduce)").matches||getComputedStyle(wheel).transitionDuration==="0s";
+ wheel.addEventListener("transitionend",fin);const t=setTimeout(fin,instant?30:4600);
+};
+addEventListener("hashchange",fromHash);
+mq.addEventListener("change",()=>render(0));
+addEventListener("keydown",e=>{if(e.target===q)return;if(e.key==="ArrowRight")step(1);if(e.key==="ArrowLeft")step(-1)});
+let tx=0,ty=0;
+book.addEventListener("touchstart",e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY},{passive:true});
+book.addEventListener("touchend",e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>50&&Math.abs(dx)>Math.abs(dy)*1.3)step(dx<0?1:-1)},{passive:true});
+fromHash();
+try{if("serviceWorker" in navigator&&(location.protocol==="https:"||location.hostname==="localhost")&&!/claude|anthropic/.test(location.hostname))navigator.serviceWorker.register("sw.js").catch(()=>{})}catch(_){}
+}
+</script>
+</body>
+</html>
